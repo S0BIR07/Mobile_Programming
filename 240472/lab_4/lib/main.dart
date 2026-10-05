@@ -3,6 +3,9 @@ import 'package:lab_inputs/task_1.dart';
 import 'package:lab_inputs/task_2.dart';
 import 'package:lab_inputs/task_3.dart';
 import 'package:lab_inputs/task_4.dart';
+import 'package:lab_inputs/task_5.dart';
+import 'package:lab_inputs/task_6.dart';
+import 'package:lab_inputs/task_7.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,7 +23,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         colorSchemeSeed: Colors.deepPurple,
       ),
-      home: const Task4Screen(),
+      home: const Task7Screen(),
     );
   }
 }
