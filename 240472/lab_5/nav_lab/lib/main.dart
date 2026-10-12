@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:nav_lab/category_1/task_1_1.dart';
-import 'package:nav_lab/category_1/task_1_2.dart';
-import 'package:nav_lab/category_1/task_1_3.dart';
+import 'package:nav_lab/category_1/task_1_1.dart' as cat1_task1;
+import 'package:nav_lab/category_1/task_1_2.dart' as cat1_task2;
+import 'package:nav_lab/category_1/task_1_3.dart' as cat1_task3;
+
+import 'package:nav_lab/category_2/task_2_1.dart' as cat2_task1;
+import 'package:nav_lab/category_2/task_2_2.dart' as cat2_task2;
 
 void main() {
   runApp(const MyApp());
@@ -16,9 +19,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Navigation Lab',
       theme: ThemeData(
-       colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const LoginScreen(),
+      home: const cat2_task2.HomeScreen(),
     );
   }
 }
