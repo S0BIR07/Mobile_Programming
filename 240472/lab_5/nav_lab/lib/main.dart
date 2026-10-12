@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:nav_lab/category_1/task_1_1.dart' as cat1_task1;
 import 'package:nav_lab/category_1/task_1_2.dart' as cat1_task2;
 import 'package:nav_lab/category_1/task_1_3.dart' as cat1_task3;
+import 'package:nav_lab/category_1/task_1_4.dart' as cat1_task4;
+import 'package:nav_lab/category_1/task_1_5.dart' as cat1_task5;
 
 import 'package:nav_lab/category_2/task_2_1.dart' as cat2_task1;
 import 'package:nav_lab/category_2/task_2_2.dart' as cat2_task2;
@@ -21,7 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const cat2_task2.HomeScreen(),
+      home: const cat1_task5.BackOrExitButton(),
     );
   }
 }
