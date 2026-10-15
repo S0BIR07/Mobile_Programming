@@ -7,6 +7,9 @@ import 'package:nav_lab/category_1/task_1_5.dart' as cat1_task5;
 
 import 'package:nav_lab/category_2/task_2_1.dart' as cat2_task1;
 import 'package:nav_lab/category_2/task_2_2.dart' as cat2_task2;
+import 'package:nav_lab/category_2/task_2_3.dart' as cat2_task3;
+import 'package:nav_lab/category_2/task_2_4.dart' as cat2_task4;
+import 'package:nav_lab/category_2/task_2_5.dart' as cat2_task5;
 
 void main() {
   runApp(const MyApp());
@@ -23,7 +26,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const cat1_task5.BackOrExitButton(),
+      home: const cat2_task5.AuthLoginScreen(),
     );
   }
 }
