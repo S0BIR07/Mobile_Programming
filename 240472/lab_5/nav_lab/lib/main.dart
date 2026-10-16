@@ -11,6 +11,12 @@ import 'package:nav_lab/category_2/task_2_3.dart' as cat2_task3;
 import 'package:nav_lab/category_2/task_2_4.dart' as cat2_task4;
 import 'package:nav_lab/category_2/task_2_5.dart' as cat2_task5;
 
+import 'package:nav_lab/category_3/task_3_1.dart' as cat3_task1;
+import 'package:nav_lab/category_3/task_3_2.dart' as cat3_task2;
+import 'package:nav_lab/category_3/task_3_3.dart' as cat3_task3;
+import 'package:nav_lab/category_3/task_3_4.dart' as cat3_task4;
+import 'package:nav_lab/category_3/task_3_5.dart' as cat3_task5;
+
 void main() {
   runApp(const MyApp());
 }
@@ -26,7 +32,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const cat2_task5.AuthLoginScreen(),
+      home: const cat3_task5.HomeScreen(),
     );
   }
 }
