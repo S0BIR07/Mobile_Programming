@@ -1,5 +1,44 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:riverpod_ticker/providers/ticker_providers.dart';
+import 'package:riverpod_ticker/services/tick_feed.dart';
 
 void main() {
-  test('stub test', () {});
+  test('starts loading, then emits data', () async {
+    final container = ProviderContainer(overrides: [
+      tickFeedProvider.overrideWithValue(TickFeed(symbols: const ['BTC'])),
+    ]);
+    addTearDown(container.dispose);
+
+    final sub = container.listen(tickerProvider, (_, _) {});
+
+    expect(container.read(tickerProvider), isA<AsyncLoading<List<dynamic>>>());
+
+    final first = await container.read(tickerProvider.future);
+    expect(first.single.symbol, 'BTC');
+    expect(container.read(tickerProvider).hasValue, isTrue);
+
+    sub.close();
+  });
+
+  test('surfaces FeedException as AsyncError with previous value', () async {
+    final container = ProviderContainer(overrides: [
+      tickFeedProvider.overrideWithValue(
+        TickFeed(symbols: const ['BTC'], failAfter: 1),
+      ),
+    ]);
+    addTearDown(container.dispose);
+
+    final sub = container.listen(tickerProvider, (_, _) {});
+
+    await container.read(tickerProvider.future);
+    await Future.delayed(const Duration(milliseconds: 600));
+
+    final state = container.read(tickerProvider);
+    expect(state.hasError, isTrue);
+    expect(state.hasValue, isTrue, reason: 'previous ticks are kept');
+    expect(state.error, isA<FeedException>());
+
+    sub.close();
+  });
 }
