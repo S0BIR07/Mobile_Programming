@@ -1,17 +1,11 @@
 import 'package:cart_four_ways/models/cart.dart';
 import 'package:cart_four_ways/riverpod/cart_notifier.dart';
 import 'package:cart_four_ways/services/checkout_api.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-class FailingCheckoutApi implements CheckoutApi {
-  @override
-  dynamic noSuchMethod(Invocation invocation) {
-    if (invocation.memberName == #submit) {
-      return Future<dynamic>.error(const CheckoutException('Card declined'));
-    }
-    return super.noSuchMethod(invocation);
-  }
-}
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockCheckoutApi extends Mock implements CheckoutApi {}
 
 void main() {
   test('Riverpod cart: add Keyboard twice, apply SAVE10, total is 88.2', () {
@@ -19,8 +13,8 @@ void main() {
     addTearDown(container.dispose);
 
     final notifier = container.read(cartProvider.notifier);
-
     final keyboard = catalog.firstWhere((p) => p.id == 'p1');
+
     notifier.add(keyboard);
     notifier.add(keyboard);
     notifier.applyCoupon('SAVE10');
@@ -29,25 +23,31 @@ void main() {
     expect(state.total, 88.20);
   });
 
-  test('Riverpod cart: checkout exception sets status to failure while keeping lines', () async {
-    final mockApi = FailingCheckoutApi();
+  test(
+    'Riverpod cart: checkout exception sets status to failure while keeping lines',
+    () async {
+      final mockApi = MockCheckoutApi();
+      when(() => mockApi.submit(any())).thenAnswer(
+        (_) async => throw const CheckoutException('Card declined'),
+      );
 
-    final container = ProviderContainer(
-      overrides: [
-        checkoutApiProvider.overrideWithValue(mockApi),
-      ],
-    );
-    addTearDown(container.dispose);
+      final container = ProviderContainer(
+        overrides: [
+          checkoutApiProvider.overrideWithValue(mockApi),
+        ],
+      );
+      addTearDown(container.dispose);
 
-    final notifier = container.read(cartProvider.notifier);
-    final keyboard = catalog.firstWhere((p) => p.id == 'p1');
-    notifier.add(keyboard);
+      final notifier = container.read(cartProvider.notifier);
+      final keyboard = catalog.firstWhere((p) => p.id == 'p1');
+      notifier.add(keyboard);
 
-    await notifier.checkout();
+      await notifier.checkout();
 
-    final state = container.read(cartProvider);
-    expect(state.status, CheckoutStatus.failure);
-    expect(state.checkoutError, 'Card declined');
-    expect(state.lines.length, 1);
-  });
+      final state = container.read(cartProvider);
+      expect(state.status, CheckoutStatus.failure);
+      expect(state.checkoutError, 'Card declined');
+      expect(state.lines.length, 1);
+    },
+  );
 }
