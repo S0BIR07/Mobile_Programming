@@ -5,6 +5,14 @@ class Product {
   final String id;
   final String name;
   final double price;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Product && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 const catalog = [
@@ -19,9 +27,19 @@ class CartLine {
   final int qty;
   double get subtotal => product.price * qty;
   CartLine copyWith({int? qty}) => CartLine(product: product, qty: qty ?? this.qty);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CartLine &&
+          runtimeType == other.runtimeType &&
+          product == other.product &&
+          qty == other.qty;
+
+  @override
+  int get hashCode => Object.hash(product, qty);
 }
 
-/// Pure, style-independent cart logic. Every state holder calls these.
 extension CartLines on List<CartLine> {
   List<CartLine> withProduct(Product p) {
     final i = indexWhere((l) => l.product.id == p.id);
@@ -35,8 +53,7 @@ extension CartLines on List<CartLine> {
   List<CartLine> changeQty(String productId, int delta) {
     final i = indexWhere((l) => l.product.id == productId);
     if (i == -1) return this;
-    final currentQty = this[i].qty;
-    final newQty = currentQty + delta;
+    final newQty = this[i].qty + delta;
     if (newQty <= 0) return without(productId);
     return [
       for (final l in this)
@@ -59,7 +76,9 @@ class CartState {
     this.status = CheckoutStatus.idle,
     this.orderId,
     this.checkoutError,
-  });
+    this.history = const [],
+    bool? canUndo,
+  }) : _canUndoOverride = canUndo;
 
   final List<CartLine> lines;
   final String? coupon;
@@ -67,12 +86,24 @@ class CartState {
   final CheckoutStatus status;
   final String? orderId;
   final String? checkoutError;
+  final List<CartState> history;
+  final bool? _canUndoOverride;
 
-  // Derived values (T3)
+  bool get canUndo => _canUndoOverride ?? history.isNotEmpty;
   int get itemCount => lines.itemCount;
   double get subtotal => lines.subtotal;
   double get discount => coupon == 'SAVE10' ? subtotal * 0.10 : 0.0;
   double get total => subtotal - discount;
+
+  /// Creates a snapshot without nested history to avoid exponential memory growth
+  CartState asSnapshot() => CartState(
+        lines: lines,
+        coupon: coupon,
+        couponError: couponError,
+        status: status,
+        orderId: orderId,
+        checkoutError: checkoutError,
+      );
 
   CartState copyWith({
     List<CartLine>? lines,
@@ -81,6 +112,8 @@ class CartState {
     CheckoutStatus? status,
     Object? orderId = _sentinel,
     Object? checkoutError = _sentinel,
+    List<CartState>? history,
+    Object? canUndo = _sentinel,
   }) {
     return CartState(
       lines: lines ?? this.lines,
@@ -89,8 +122,36 @@ class CartState {
       status: status ?? this.status,
       orderId: orderId == _sentinel ? this.orderId : orderId as String?,
       checkoutError: checkoutError == _sentinel ? this.checkoutError : checkoutError as String?,
+      history: history ?? this.history,
+      canUndo: canUndo == _sentinel ? _canUndoOverride : canUndo as bool?,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CartState &&
+          runtimeType == other.runtimeType &&
+          listEquals(lines, other.lines) &&
+          coupon == other.coupon &&
+          couponError == other.couponError &&
+          status == other.status &&
+          orderId == other.orderId &&
+          checkoutError == other.checkoutError &&
+          listEquals(history, other.history) &&
+          canUndo == other.canUndo;
+
+  @override
+  int get hashCode => Object.hash(
+        Object.hashAll(lines),
+        coupon,
+        couponError,
+        status,
+        orderId,
+        checkoutError,
+        Object.hashAll(history),
+        canUndo,
+      );
 }
 
 const Object _sentinel = Object();
